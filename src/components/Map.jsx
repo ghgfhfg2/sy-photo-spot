@@ -1,49 +1,25 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  MapContainer,
-  Marker,
-  Popup,
-  TileLayer,
-  useMapEvent,
-} from "react-leaflet";
-
+import { MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Box, Button } from "@chakra-ui/react";
 import LocationMarker from "./LocationMarker";
-import styled from "styled-components";
 import NewMarker from "./NewMarker";
-const MapStyled = styled.div`
-  width: 100%;
-  height: 100%;
-  position: relative;
-  .btn-container {
-    position: absolute;
-    z-index: 2000;
-    left: 50px;
-    bottom: 50px;
-  }
-  .save-pointer-box {
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    width: 100%;
-    height: 100%;
-    color: #fff;
-    .info-txt {
-      background: rgba(0, 0, 0, 0.5);
-      padding: 10px;
-      border-radius: 7px;
-    }
-  }
-`;
+import BottomMenu from "./BottomMenu";
+import { MapStyled } from "../style/componentStyle";
+import { api } from "../api";
+import MarkerCluster from "./MarkerCluster";
+import MarkerPopup from "./modal/MarkerPopup";
+import { useDisclosure } from "@chakra-ui/react";
+import { useStore } from "../store/store";
 
-function Map() {
+function Map({ userInfo }) {
   const mapRef = useRef();
+  const [saveMode, setSaveMode] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const marker = useStore((state) => state.marker);
 
   const handleCurrentLocation = () => {
     const map = mapRef.current;
+    setSaveMode(false);
     if (map != null) {
       map.locate().on("locationfound", function (e) {
         map.flyTo(e.latlng, 16);
@@ -51,32 +27,67 @@ function Map() {
     }
   };
 
-  const [saveMode, setSaveMode] = useState(false);
   const onSaveMode = () => {
     setSaveMode(!saveMode);
-    console.log(saveMode);
   }; //위치 저장모드로 변경
+
+  const fetchBoundsLocation = async (bounds) => {
+    const locationData = {
+      northEast_lat: bounds._northEast.lat,
+      northEast_lng: bounds._northEast.lng,
+      southWest_lat: bounds._southWest.lat,
+      southWest_lng: bounds._southWest.lat,
+    };
+    const { data } = await api.post(`/photo.php`, {
+      a: "getLocationList",
+      ...locationData,
+    });
+    return data;
+  }; //범위 내 마커리스트 가져오기
+
+  const [locationList, setLocationList] = useState();
+  const [render, setRender] = useState(0);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map) {
+      const handleMoveEnd = () => {
+        const bounds = map.getBounds();
+        if (map._zoom >= 12) {
+          fetchBoundsLocation(bounds).then((res) => {
+            setLocationList(res.list);
+          });
+        } else {
+          setLocationList("");
+        }
+      };
+      map.locate().on("moveend", handleMoveEnd); //지도 이동 후 이벤트
+      return () => {
+        map.off("moveend", handleMoveEnd);
+      };
+    } else {
+      setRender(render + 1);
+    }
+  }, [mapRef, render]);
+
+  useEffect(() => {
+    setLocationList(locationList);
+  }, [locationList]);
 
   return (
     <>
       <MapStyled>
         <MapContainer
           ref={mapRef}
-          center={[50.5, 30.5]}
+          center={[37.566, 126.98]}
           zoom={13}
           style={{ height: "100%", width: "100%" }}
+          whenCreated
         >
-          <div className="btn-container">
-            <Button
-              className="btn-move-currnet"
-              onClick={handleCurrentLocation}
-            >
-              현재위치
-            </Button>
-            <Button className="btn-move-currnet" onClick={onSaveMode}>
-              위치저장
-            </Button>
-          </div>
+          <BottomMenu
+            handleCurrentLocation={handleCurrentLocation}
+            onSaveMode={onSaveMode}
+            saveMode={saveMode}
+          />
           {saveMode && (
             <>
               <div className="save-pointer-box">
@@ -86,6 +97,16 @@ function Map() {
               <NewMarker />
             </>
           )}
+          {locationList && (
+            <>
+              <MarkerCluster onOpen={onOpen} markers={locationList} />
+            </>
+          )}
+
+          {marker && (
+            <MarkerPopup data={marker} isOpen={isOpen} onClose={onClose} />
+          )}
+
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

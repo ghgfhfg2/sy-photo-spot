@@ -1,61 +1,142 @@
 import {
   Button,
+  Flex,
   FormControl,
-  FormLabel,
-  Image,
   Input,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
+  useToast,
 } from "@chakra-ui/react";
-import { useRef } from "react";
+import { useState } from "react";
+import ImageUpload, { dataURLtoFile } from "../ImageUpload";
+import { useForm } from "react-hook-form";
+import { format, subYears } from "date-fns";
+import { getDownloadURL, ref as sRef, uploadBytes } from "firebase/storage";
+import { db, storage } from "../../firebase";
+import short from "short-uuid";
+import { ref, set } from "firebase/database";
+import axios from "axios";
+import { api } from "../../api";
+import { useMutation, useQueryClient } from "react-query";
+import { useStore } from "../../store/store";
 
-function CreateModal({ isOpen, onClose, setNewMarker, data }) {
-  const initialRef = useRef();
-  const finalRef = useRef();
-
-  console.log(data);
+function CreateModal({ isOpen, onClose, setNewMarker, newMarker }) {
+  const userInfo = useStore((state) => state.userInfo);
+  const toast = useToast();
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm();
 
   const onCloseModal = () => {
     onClose();
     setNewMarker("");
   };
 
+  const [clipImg, setClipImg] = useState([]); //이미지
+
+  //과거 2년전까지 날짜 등록 가능
+  let minDate = format(subYears(new Date(), 2), "yyy-MM-dd%HH:mm");
+  let maxDate = format(new Date(), "yyy-MM-dd%HH:mm");
+  minDate = minDate.replace("%", "T");
+  maxDate = maxDate.replace("%", "T");
+
+  //이미지 업로드
+  const onUpdateImage = async (base64) => {
+    let file = dataURLtoFile(base64, newMarker.id);
+    const metadata = { contentType: file.type };
+    const storageRef = sRef(
+      storage,
+      `images/${userInfo.uid}/${newMarker.id}`,
+      metadata
+    );
+    try {
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      return downloadURL;
+    } catch (error) {
+      console.error("이미지 업로드 중 오류가 발생했습니다:", error);
+      throw error; // 오류를 호출자에게 전파합니다.
+    }
+  };
+
+  const setImageLocation = (location) => {
+    const { data } = api.put(`/photo.php`, location);
+    return data;
+  };
+
+  const queryClient = useQueryClient();
+  const addLocaMutation = useMutation(setImageLocation, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["location"]);
+    },
+  });
+
+  //신청
+  const onSubmit = async (values) => {
+    const imageUrl = await onUpdateImage(clipImg[0]);
+    values.a = "setLocation";
+    values.image_url = imageUrl;
+    values.date = format(new Date(values.date), "yyyy-MM-dd HH:mm");
+    values.user_uid = userInfo.uid;
+    values.user_nick = userInfo.nick;
+    values.lat = newMarker.latitude;
+    values.lng = newMarker.longitude;
+    addLocaMutation.mutate(values);
+    onCloseModal();
+    toast({
+      description: "등록 신청이 완료되었습니다.",
+      status: "success",
+      duration: 1000,
+      isClosable: false,
+    });
+  };
+
   return (
-    <Modal
-      initialFocusRef={initialRef}
-      finalFocusRef={finalRef}
-      isOpen={isOpen}
-      onClose={onCloseModal}
-    >
+    <Modal isOpen={isOpen} onClose={onCloseModal} size="xl">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Create your account</ModalHeader>
+        <ModalHeader>사진 등록 요청하기</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <FormControl>
-            <div>
-              <Input ref={initialRef} placeholder="이미지 url" />
-            </div>
-          </FormControl>
-          <FormControl mt={4}>
-            <Input ref={initialRef} placeholder="First name" />
-          </FormControl>
-          <FormControl mt={4}>
-            <Input placeholder="Last name" />
-          </FormControl>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <FormControl>
+              <ImageUpload clipImg={clipImg} setClipImg={setClipImg} />
+            </FormControl>
+            <FormControl mt={4}>
+              <Input
+                {...register("date")}
+                placeholder="Last name"
+                type="datetime-local"
+                min={minDate}
+                max={maxDate}
+                required
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <Input {...register("link")} placeholder="링크주소 (선택사항)" />
+            </FormControl>
+            <Flex mt={5}>
+              <Button
+                width="70%"
+                colorScheme="blue"
+                mr={3}
+                type="submit"
+                isLoading={isSubmitting}
+              >
+                신청
+              </Button>
+              <Button width="30%" onClick={onCloseModal}>
+                다시선택
+              </Button>
+            </Flex>
+          </form>
         </ModalBody>
-
-        <ModalFooter>
-          <Button colorScheme="blue" mr={3}>
-            Save
-          </Button>
-          <Button onClick={onCloseModal}>다시선택</Button>
-        </ModalFooter>
       </ModalContent>
     </Modal>
   );

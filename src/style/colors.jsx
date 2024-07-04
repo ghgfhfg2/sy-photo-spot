@@ -109,6 +109,8 @@ const colors = {
   YELLOW_700: "#975A16",
   YELLOW_800: "#744210",
   YELLOW_900: "#5F370E",
+
+  MAIN: "#553C9A",
 };
 
 export { colors };
