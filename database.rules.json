@@ -1,7 +1,11 @@
 {
-  /* Visit https://firebase.google.com/docs/database/security to learn more about security rules. */
   "rules": {
-    ".read": false,
-    ".write": false
+    ".read": "auth != null", // 로그인한 사용자만 읽기 가능
+    ".write": "auth != null", // 로그인한 사용자만 쓰기 가능
+    "users": {
+      "$uid": {
+        ".write": "auth != null || !data.exists()" // 로그인한 사용자 또는 데이터가 없는 경우(회원가입)만 쓰기 가능
+      }
+    }
   }
 }

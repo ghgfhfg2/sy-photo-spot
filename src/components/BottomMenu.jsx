@@ -1,7 +1,5 @@
 import { Button, Input, useToast } from "@chakra-ui/react";
-import React from "react";
 import { MapStyled } from "../style/componentStyle";
-import { api } from "../api";
 import { format, subYears } from "date-fns";
 import { useStore } from "../store/store";
 
@@ -10,6 +8,7 @@ function BottomMenu({
   onSaveMode,
   saveMode,
   setSaveMode,
+  setRender,
 }) {
   const setDate = useStore((state) => state.setDate);
 
@@ -21,6 +20,7 @@ function BottomMenu({
 
   const onDateSet = (e) => {
     setDate(e.target.value);
+    setRender((pre) => pre + 1);
   };
 
   return (

@@ -71,9 +71,23 @@ function Map({ userInfo }) {
         map.off("moveend", handleMoveEnd);
       };
     } else {
-      setRender(render + 1);
+      setRender((pre) => pre + 1);
     }
   }, [mapRef, render, date]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map) {
+      const bounds = map.getBounds();
+      if (map._zoom >= 12) {
+        fetchBoundsLocation(bounds, date, searchMaxDate).then((res) => {
+          setLocationList(res.list);
+        });
+      } else {
+        setLocationList("");
+      }
+    }
+  }, [render]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -82,7 +96,7 @@ function Map({ userInfo }) {
         map.flyTo(e.latlng, 16);
       });
     }
-  }, []);
+  }, [mapRef]);
 
   // useEffect(() => {
   //   setLocationList(locationList);
@@ -103,6 +117,7 @@ function Map({ userInfo }) {
             setSaveMode={setSaveMode}
             onSaveMode={onSaveMode}
             saveMode={saveMode}
+            setRender={setRender}
           />
           {saveMode && (
             <>
