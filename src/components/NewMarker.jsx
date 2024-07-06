@@ -10,7 +10,7 @@ import short from "short-uuid";
 import { get, ref } from "firebase/database";
 import { db } from "../firebase";
 
-const NewMarker = () => {
+const NewMarker = ({ setSaveMode }) => {
   const { isOpen, onOpen, onClose } = useDisclosure(); //위치저장 모달
 
   const iconMarkup = renderToStaticMarkup(
@@ -54,6 +54,7 @@ const NewMarker = () => {
             position={[newMarker.latitude, newMarker.longitude]}
           />
           <CreateModal
+            setSaveMode={setSaveMode}
             isOpen={isOpen}
             data={newMarker}
             onClose={onClose}

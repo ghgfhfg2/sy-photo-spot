@@ -11,7 +11,6 @@ import { useStore } from "../store/store";
 const MarkerCluster = ({ markers, onOpen }) => {
   const map = useMap();
 
-  const marker = useStore((state) => state.marker);
   const setMarker = useStore((state) => state.setMarker);
   const markerList = useStore((state) => state.markerList);
   const putMarkerList = useStore((state) => state.putMarkerList);

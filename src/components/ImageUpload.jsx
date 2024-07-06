@@ -149,12 +149,18 @@ const ImageUpload = ({ clipImg, setClipImg }) => {
   return (
     <UploadInputStyle>
       <Flex>
-        <Input onPaste={clipboard} placeholder="복사한 이미지 붙여넣기" />
+        <Input
+          fontSize="sm"
+          onPaste={clipboard}
+          placeholder="복사한 이미지 붙여넣기"
+        />
         <div className="input-box">
           <input type="file" id="img_file" onChange={clipboard} />
           <label htmlFor="img_file">
             <AiOutlineUpload />
-            <Text ml={2}>직접 첨부하기</Text>
+            <Text fontSize="sm" ml={2}>
+              직접 첨부하기
+            </Text>
           </label>
         </div>
       </Flex>

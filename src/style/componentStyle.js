@@ -9,7 +9,7 @@ const MapStyled = styled.div`
   align-items: flex-end;
   .btn-container {
     position: relative;
-    z-index: 2000;
+    z-index: 500;
     padding-bottom: 2rem;
   }
   .save-pointer-box {
@@ -19,7 +19,7 @@ const MapStyled = styled.div`
     align-items: center;
     left: 0;
     top: 0;
-    z-index: 1000;
+    z-index: 400;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.2);

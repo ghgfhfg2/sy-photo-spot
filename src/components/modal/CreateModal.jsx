@@ -2,6 +2,7 @@ import {
   Button,
   Flex,
   FormControl,
+  FormErrorMessage,
   Input,
   Modal,
   ModalBody,
@@ -16,15 +17,18 @@ import ImageUpload, { dataURLtoFile } from "../ImageUpload";
 import { useForm } from "react-hook-form";
 import { format, subYears } from "date-fns";
 import { getDownloadURL, ref as sRef, uploadBytes } from "firebase/storage";
-import { db, storage } from "../../firebase";
-import short from "short-uuid";
-import { ref, set } from "firebase/database";
-import axios from "axios";
+import { storage } from "../../firebase";
 import { api } from "../../api";
 import { useMutation, useQueryClient } from "react-query";
 import { useStore } from "../../store/store";
 
-function CreateModal({ isOpen, onClose, setNewMarker, newMarker }) {
+function CreateModal({
+  isOpen,
+  onClose,
+  setNewMarker,
+  newMarker,
+  setSaveMode,
+}) {
   const userInfo = useStore((state) => state.userInfo);
   const toast = useToast();
   const {
@@ -36,6 +40,10 @@ function CreateModal({ isOpen, onClose, setNewMarker, newMarker }) {
   const onCloseModal = () => {
     onClose();
     setNewMarker("");
+    console.log(11);
+    console.log("setSaveMode", setSaveMode);
+
+    setSaveMode(false);
   };
 
   const [clipImg, setClipImg] = useState([]); //이미지
@@ -79,6 +87,24 @@ function CreateModal({ isOpen, onClose, setNewMarker, newMarker }) {
 
   //신청
   const onSubmit = async (values) => {
+    if (!clipImg[0]) {
+      toast({
+        description: "이미지를 첨부해 주세요",
+        status: "info",
+        duration: 1000,
+        isClosable: false,
+      });
+      return;
+    }
+    if (!values.title) {
+      toast({
+        description: "제목을 입력해 주세요",
+        status: "error",
+        duration: 1000,
+        isClosable: false,
+      });
+      return;
+    }
     const imageUrl = await onUpdateImage(clipImg[0]);
     values.a = "setLocation";
     values.image_url = imageUrl;
@@ -110,6 +136,19 @@ function CreateModal({ isOpen, onClose, setNewMarker, newMarker }) {
             </FormControl>
             <FormControl mt={4}>
               <Input
+                fontSize="sm"
+                {...register("title", {
+                  required: "제목은 필수항목 입니다.",
+                })}
+                placeholder="제목"
+              />
+              <FormErrorMessage>
+                {errors.title && errors.title.message}
+              </FormErrorMessage>
+            </FormControl>
+            <FormControl mt={4}>
+              <Input
+                fontSize="sm"
                 {...register("date")}
                 placeholder="Last name"
                 type="datetime-local"
@@ -119,7 +158,11 @@ function CreateModal({ isOpen, onClose, setNewMarker, newMarker }) {
               />
             </FormControl>
             <FormControl mt={4}>
-              <Input {...register("link")} placeholder="링크주소 (선택사항)" />
+              <Input
+                fontSize="sm"
+                {...register("link")}
+                placeholder="링크주소 (선택사항)"
+              />
             </FormControl>
             <Flex mt={5}>
               <Button
@@ -132,7 +175,7 @@ function CreateModal({ isOpen, onClose, setNewMarker, newMarker }) {
                 신청
               </Button>
               <Button width="30%" onClick={onCloseModal}>
-                다시선택
+                취소
               </Button>
             </Flex>
           </form>

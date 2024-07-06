@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import LocationMarker from "./LocationMarker";
@@ -8,14 +8,18 @@ import { MapStyled } from "../style/componentStyle";
 import { api } from "../api";
 import MarkerCluster from "./MarkerCluster";
 import MarkerPopup from "./modal/MarkerPopup";
-import { useDisclosure } from "@chakra-ui/react";
+import { Box, useDisclosure } from "@chakra-ui/react";
 import { useStore } from "../store/store";
+import { addMonths, format } from "date-fns";
+import { Search } from "./Search";
 
 function Map({ userInfo }) {
   const mapRef = useRef();
   const [saveMode, setSaveMode] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const marker = useStore((state) => state.marker);
+  const date = useStore((state) => state.date);
+  const searchMaxDate = format(addMonths(new Date(date), 1), "yyyy-MM");
 
   const handleCurrentLocation = () => {
     const map = mapRef.current;
@@ -31,7 +35,7 @@ function Map({ userInfo }) {
     setSaveMode(!saveMode);
   }; //위치 저장모드로 변경
 
-  const fetchBoundsLocation = async (bounds) => {
+  const fetchBoundsLocation = async (bounds, startDate, endDate) => {
     const locationData = {
       northEast_lat: bounds._northEast.lat,
       northEast_lng: bounds._northEast.lng,
@@ -41,6 +45,8 @@ function Map({ userInfo }) {
     const { data } = await api.post(`/photo.php`, {
       a: "getLocationList",
       ...locationData,
+      startDate: `${startDate}-01 00:00:00`,
+      endDate: `${endDate}-01 00:00:00`,
     });
     return data;
   }; //범위 내 마커리스트 가져오기
@@ -53,25 +59,34 @@ function Map({ userInfo }) {
       const handleMoveEnd = () => {
         const bounds = map.getBounds();
         if (map._zoom >= 12) {
-          fetchBoundsLocation(bounds).then((res) => {
+          fetchBoundsLocation(bounds, date, searchMaxDate).then((res) => {
             setLocationList(res.list);
           });
         } else {
           setLocationList("");
         }
       };
-      map.locate().on("moveend", handleMoveEnd); //지도 이동 후 이벤트
+      map.on("moveend", handleMoveEnd); //지도 이동 후 이벤트
       return () => {
         map.off("moveend", handleMoveEnd);
       };
     } else {
       setRender(render + 1);
     }
-  }, [mapRef, render]);
+  }, [mapRef, render, date]);
 
   useEffect(() => {
-    setLocationList(locationList);
-  }, [locationList]);
+    const map = mapRef.current;
+    if (map) {
+      map.locate().on("locationfound", function (e) {
+        map.flyTo(e.latlng, 16);
+      });
+    }
+  }, []);
+
+  // useEffect(() => {
+  //   setLocationList(locationList);
+  // }, [locationList]);
 
   return (
     <>
@@ -85,6 +100,7 @@ function Map({ userInfo }) {
         >
           <BottomMenu
             handleCurrentLocation={handleCurrentLocation}
+            setSaveMode={setSaveMode}
             onSaveMode={onSaveMode}
             saveMode={saveMode}
           />
@@ -94,7 +110,7 @@ function Map({ userInfo }) {
                 <div className="pointer"></div>
                 <p className="info-txt">저장할 위치를 선택헤 주세요</p>
               </div>
-              <NewMarker />
+              <NewMarker setSaveMode={setSaveMode} />
             </>
           )}
           {locationList && (
@@ -111,6 +127,7 @@ function Map({ userInfo }) {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <Search />
           <LocationMarker />
           {/* Additional map layers or components can be added here */}
         </MapContainer>

@@ -15,9 +15,11 @@ const LocationMarker = () => {
     map.locate().on("locationfound", handleLocationFound);
   }, [map]);
 
-  return currentPosition === null ? null : null;
-  // <Marker position={currentPosition}>
-  //   <Popup>현재 예상 위치</Popup>
-  // </Marker>
+  return currentPosition === null ? null : (
+    <></>
+    // <Marker position={currentPosition}>
+    //   <Popup>현재 예상 위치</Popup>
+    // </Marker>
+  );
 };
 export default LocationMarker;

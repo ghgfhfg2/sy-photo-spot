@@ -1,8 +1,4 @@
 import {
-  Button,
-  Flex,
-  FormControl,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -16,9 +12,9 @@ import { RiUserLine } from "react-icons/ri";
 import { MdOutlineDateRange } from "react-icons/md";
 import { IoMdLink } from "react-icons/io";
 import { colors } from "../../style/colors";
+import ModalMenu from "./ModalMenu";
 
 const PopupContainer = styled.div`
-  width: 100%;
   .zoom {
     width: 400px;
   }
@@ -31,7 +27,7 @@ const PopupImage = styled.img`
 `;
 
 const InfoList = styled.div`
-  padding: 10px;
+  padding: 5px 0;
 `;
 
 const InfoItem = styled.div`
@@ -56,6 +52,16 @@ const InfoValue = styled.span`
   }
 `;
 
+const TopInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .user {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+`;
+
 function MarkerPopup({ isOpen, onClose, data }) {
   const { setMarker } = useStore();
   const onCloseModal = () => {
@@ -67,38 +73,38 @@ function MarkerPopup({ isOpen, onClose, data }) {
       <Modal isOpen={isOpen} onClose={onCloseModal} size="md">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>사진 등록 요청하기</ModalHeader>
+          <ModalHeader>{data.title}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <PopupContainer>
               <PopupImage src={data.image_url} alt="Image" />
+              <TopInfo>
+                <div className="user">{data.user_nick}</div>
+                <ModalMenu data={data} onCloseModal={onCloseModal} />
+              </TopInfo>
               <InfoList>
-                <InfoItem>
-                  <InfoKey>
-                    <RiUserLine />
-                  </InfoKey>
-                  <InfoValue>{data.user_nick}</InfoValue>
-                </InfoItem>
                 <InfoItem>
                   <InfoKey>
                     <MdOutlineDateRange />
                   </InfoKey>
                   <InfoValue>{data.date}</InfoValue>
                 </InfoItem>
-                <InfoItem>
-                  <InfoKey>
-                    <IoMdLink />
-                  </InfoKey>
-                  <InfoValue className="link">
-                    <a
-                      href={data.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {data.link}
-                    </a>
-                  </InfoValue>
-                </InfoItem>
+                {data.link && (
+                  <InfoItem>
+                    <InfoKey>
+                      <IoMdLink />
+                    </InfoKey>
+                    <InfoValue className="link">
+                      <a
+                        href={data.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {data.link}
+                      </a>
+                    </InfoValue>
+                  </InfoItem>
+                )}
               </InfoList>
             </PopupContainer>
           </ModalBody>
