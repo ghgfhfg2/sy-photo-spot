@@ -61,13 +61,19 @@ export const Search = () => {
       >
         <Input
           type="text"
+          boxShadow="lg"
           background="#fff"
           value={query}
           onKeyDown={handleKeyDown}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="장소 검색"
         />
-        <Button ml={1} isLoading={searchLoading} onClick={searchQuery}>
+        <Button
+          boxShadow="lg"
+          ml={1}
+          isLoading={searchLoading}
+          onClick={searchQuery}
+        >
           검색
         </Button>
       </Flex>

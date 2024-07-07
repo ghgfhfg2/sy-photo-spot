@@ -39,7 +39,10 @@ const GlobalStyle = createGlobalStyle`
   border: none;
 }
 
-
+.leaflet-tile {
+  image-rendering: crisp-edges; /* 크리스프한 엣지를 사용하여 렌더링 품질 개선 */
+  image-rendering: pixelated;   /* 픽셀화된 이미지를 사용하여 렌더링 품질 개선 */
+}
 
 `;
 

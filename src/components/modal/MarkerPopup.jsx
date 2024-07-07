@@ -62,12 +62,14 @@ const TopInfo = styled.div`
   }
 `;
 
-function MarkerPopup({ isOpen, onClose, data }) {
-  const { setMarker } = useStore();
+function MarkerPopup({ isOpen, onClose, data, setRender }) {
+  const userInfo = useStore((state) => state.userInfo);
+  const setMarker = useStore((state) => state.setMarker);
   const onCloseModal = () => {
     setMarker({});
     onClose();
   };
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onCloseModal} size="md">
@@ -80,7 +82,13 @@ function MarkerPopup({ isOpen, onClose, data }) {
               <PopupImage src={data.image_url} alt="Image" />
               <TopInfo>
                 <div className="user">{data.user_nick}</div>
-                <ModalMenu data={data} onCloseModal={onCloseModal} />
+                {userInfo.uid === data.user_uid && (
+                  <ModalMenu
+                    setRender={setRender}
+                    data={data}
+                    onCloseModal={onCloseModal}
+                  />
+                )}
               </TopInfo>
               <InfoList>
                 <InfoItem>
@@ -90,7 +98,7 @@ function MarkerPopup({ isOpen, onClose, data }) {
                   <InfoValue>{data.date}</InfoValue>
                 </InfoItem>
                 {data.link && (
-                  <InfoItem>
+                  <InfoItem style={{ display: "none" }}>
                     <InfoKey>
                       <IoMdLink />
                     </InfoKey>

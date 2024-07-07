@@ -9,6 +9,8 @@ const MapStyled = styled.div`
   align-items: flex-end;
   .btn-container {
     position: relative;
+    display: flex;
+    align-items: center;
     z-index: 500;
     padding-bottom: 2rem;
   }

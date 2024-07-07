@@ -17,7 +17,7 @@ import { storage } from "../../firebase";
 import { LuPencil } from "react-icons/lu";
 import UpdateModal from "./UpdateModal";
 
-export default function ModalMenu({ data, onCloseModal }) {
+export default function ModalMenu({ data, onCloseModal, setRender }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const toast = useToast();
@@ -45,6 +45,7 @@ export default function ModalMenu({ data, onCloseModal }) {
       })
       .then((res) => {
         onCloseModal();
+        setRender((pre) => pre + 1);
         toast({
           description: "삭제 되었습니다.",
           status: "success",

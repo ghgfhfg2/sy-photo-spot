@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import {
   Box,
   Button,
@@ -17,6 +17,7 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, db, provider } from "../firebase";
 import { ref, set } from "firebase/database";
 import { createRandomNick } from "../utils/randomNick";
+import { useStore } from "../store/store";
 
 const BackgroundBox = styled(Box)`
   position: absolute;
@@ -43,7 +44,14 @@ const BackgroundImage = styled(Box)`
 `;
 
 function Login() {
+  const userInfo = useStore((state) => state.userInfo);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (userInfo.uid) {
+      navigate("/");
+    }
+  }, [userInfo]);
 
   const googleHandler = async () => {
     try {

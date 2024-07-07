@@ -3,6 +3,7 @@ import {
   Flex,
   FormControl,
   FormErrorMessage,
+  FormLabel,
   Input,
   Modal,
   ModalBody,
@@ -10,9 +11,13 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
   useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ImageUpload, { dataURLtoFile } from "../ImageUpload";
 import { useForm } from "react-hook-form";
 import { format, subYears } from "date-fns";
@@ -28,6 +33,7 @@ function CreateModal({
   setNewMarker,
   newMarker,
   setSaveMode,
+  setRender,
 }) {
   const userInfo = useStore((state) => state.userInfo);
   const toast = useToast();
@@ -40,9 +46,6 @@ function CreateModal({
   const onCloseModal = () => {
     onClose();
     setNewMarker("");
-    console.log(11);
-    console.log("setSaveMode", setSaveMode);
-
     setSaveMode(false);
   };
 
@@ -107,6 +110,7 @@ function CreateModal({
     }
     const imageUrl = await onUpdateImage(clipImg[0]);
     values.a = "setLocation";
+    values.link = values.link || "";
     values.image_url = imageUrl;
     values.date = format(new Date(values.date), "yyyy-MM-dd HH:mm");
     values.user_uid = userInfo.uid;
@@ -121,6 +125,7 @@ function CreateModal({
       duration: 1000,
       isClosable: false,
     });
+    setRender((pre) => pre + 1);
   };
 
   return (
@@ -157,7 +162,7 @@ function CreateModal({
                 required
               />
             </FormControl>
-            <FormControl mt={4}>
+            <FormControl mt={4} display="none">
               <Input
                 fontSize="sm"
                 {...register("link")}
