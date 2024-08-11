@@ -1,10 +1,18 @@
+import React from "react";
 import { useEffect } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-const pages = import.meta.glob("./pages/**/*.jsx", { eager: true });
+type PageModule = {
+  default: React.ComponentType;
+  loader?: () => any;
+  action?: () => any;
+  ErrorBoundary?: React.ComponentType;
+};
+
+const pages = import.meta.glob<PageModule>("./pages/**/*.tsx", { eager: true });
 const routes = [];
 for (const path of Object.keys(pages)) {
-  const fileName = path.match(/\.\/pages\/(.*)\.jsx$/)?.[1];
+  const fileName = path.match(/\.\/pages\/(.*)\.tsx$/)?.[1];
   if (!fileName) {
     continue;
   }
@@ -43,6 +51,7 @@ function App() {
       window.removeEventListener("resize", setVh);
     };
   }, []);
+
   return (
     <>
       <RouterProvider router={router} />

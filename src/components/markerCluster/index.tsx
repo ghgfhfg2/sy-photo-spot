@@ -5,17 +5,23 @@ import "leaflet.markercluster";
 import "leaflet.markercluster/dist/leaflet.markercluster-src";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-import { api } from "../api";
-import { useStore } from "../store/store";
+import { api } from "../../api";
+import { useStore } from "../../store/store";
+import { Marker } from "../newMarker";
 
-const MarkerCluster = ({ markers, onOpen }) => {
+interface MarkerClusterProps {
+  markers: Marker[];
+  onOpen: () => void;
+}
+
+const MarkerCluster = ({ markers, onOpen }: MarkerClusterProps) => {
   const map = useMap();
 
   const setMarker = useStore((state) => state.setMarker);
   const markerList = useStore((state) => state.markerList);
   const putMarkerList = useStore((state) => state.putMarkerList);
 
-  const getMarkerData = async (id) => {
+  const getMarkerData = async (id: string) => {
     const { data } = await api.post(`/photo.php`, {
       a: "getMarkerDetails",
       id,
@@ -26,8 +32,11 @@ const MarkerCluster = ({ markers, onOpen }) => {
   useEffect(() => {
     const markerClusterGroup = L.markerClusterGroup();
 
-    markers.forEach((markerEl) => {
-      const leafletMarker = L.marker([markerEl.lat, markerEl.lng]);
+    markers.forEach((markerEl: Marker) => {
+      const leafletMarker = L.marker([
+        markerEl.lat as number,
+        markerEl.lng as number,
+      ]);
       leafletMarker.on("click", async () => {
         try {
           const find = markerList.find((el) => el.uid === markerEl.id); //state에 있는지 확인

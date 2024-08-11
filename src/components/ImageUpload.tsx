@@ -1,6 +1,4 @@
-import { useState } from "react";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../firebase";
+import React from "react";
 import { Flex, Input, Text, useToast } from "@chakra-ui/react";
 import { AiOutlineDelete, AiOutlineUpload } from "react-icons/ai";
 import imageCompression from "browser-image-compression";
@@ -57,25 +55,43 @@ const UploadInputStyle = styled.div`
   }
 `;
 
-//base64 to file
-export const dataURLtoFile = (dataurl, fileName) => {
+// TypeScript type for converting a data URL to a File
+type DataURLToFileFunction = (dataurl: string, fileName: string) => File;
+
+// Converts base64 data URL to a File object
+export const dataURLtoFile: DataURLToFileFunction = (dataurl, fileName) => {
   let arr = dataurl.split(","),
-    mime = arr[0].match(/:(.*?);/)[1],
+    mime = arr[0].match(/:(.*?);/)?.[1] || "",
     bstr = atob(arr[1]),
     n = bstr.length,
     u8arr = new Uint8Array(n);
+
   while (n--) {
     u8arr[n] = bstr.charCodeAt(n);
   }
   return new File([u8arr], fileName, { type: mime });
 };
-const ImageUpload = ({ clipImg, setClipImg }) => {
+
+// Props for ImageUpload component
+interface ImageUploadTypeProps {
+  clipImg: string[];
+  setClipImg: (images: string[]) => void;
+}
+
+// ImageUpload component
+const ImageUpload: React.FC<ImageUploadTypeProps> = ({
+  clipImg,
+  setClipImg,
+}) => {
   const toast = useToast();
 
-  //이미지 리사이즈
-  const imageResize = async (file, size) => {
+  // TypeScript type for image resizing return value
+  type ImageResizeReturn = Promise<string>;
+
+  // Function to resize images
+  const imageResize = async (file: File, size: number): ImageResizeReturn => {
     if (file.type === "image/svg+xml") {
-      return file;
+      return Promise.resolve(URL.createObjectURL(file));
     }
     const options = {
       maxWidthOrHeight: size,
@@ -84,15 +100,27 @@ const ImageUpload = ({ clipImg, setClipImg }) => {
     };
     try {
       const compressedFile = await imageCompression(file, options);
-      const promise = imageCompression.getDataUrlFromFile(compressedFile);
-      return promise;
+      const dataUrl = await imageCompression.getDataUrlFromFile(compressedFile);
+      return dataUrl;
     } catch (error) {
       console.log(error);
+      toast({
+        description: "이미지 압축에 실패했습니다.",
+        status: "error",
+        duration: 1000,
+        isClosable: true,
+      });
+      throw error;
     }
   };
 
-  const clipboard = (e) => {
-    if (clipImg?.length > 0) {
+  // Clipboard or file input change handler
+  const clipboard = async (
+    e:
+      | React.ClipboardEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (clipImg.length > 0) {
       toast({
         description: "이미 등록된 이미지가 있습니다.",
         status: "info",
@@ -100,50 +128,72 @@ const ImageUpload = ({ clipImg, setClipImg }) => {
         isClosable: false,
       });
       return;
-    } //하나만 허용할때
+    }
 
     const date = new Date().getTime();
-    let fileObj = {};
-    if (e.type === "paste" && !e.clipboardData.files[0]) {
-      toast({
-        description: "이미지가 아닙니다",
-        status: "error",
-        duration: 1000,
-        isClosable: false,
-      });
+    let file: File | null = null;
+
+    if (e.type === "paste") {
+      const clipboardEvent = e as React.ClipboardEvent<HTMLInputElement>;
+      if (
+        !clipboardEvent.clipboardData ||
+        !clipboardEvent.clipboardData.files[0]
+      ) {
+        toast({
+          description: "이미지가 아닙니다",
+          status: "error",
+          duration: 1000,
+          isClosable: false,
+        });
+        return;
+      }
+      file = clipboardEvent.clipboardData.files[0];
+    } else if (e.type === "change") {
+      const changeEvent = e as React.ChangeEvent<HTMLInputElement>;
+      if (!changeEvent.target.files || !changeEvent.target.files[0]) {
+        return;
+      }
+      file = changeEvent.target.files[0];
+    }
+
+    if (!file) {
       return;
     }
 
-    fileObj.file =
-      e.type === "paste" ? e.clipboardData.files[0] : e.target.files[0];
-    const fileType = fileObj.file.type;
+    const fileType = file.type;
     if (
       fileType !== "image/gif" &&
       fileType !== "image/png" &&
       fileType !== "image/jpeg"
     ) {
       toast({
-        description: "지원하지않는 형식 입니다.",
+        description: "지원하지 않는 형식입니다.",
         status: "error",
         duration: 1000,
         isClosable: false,
       });
       return;
     }
-    fileObj.fileName =
-      e.type === "paste"
-        ? `${date}_copyImage.png`
-        : `${date}_${fileObj.file.name}`;
-    imageResize(fileObj.file, 400).then((res) => {
-      fileObj = res;
-      setClipImg([...clipImg, fileObj]);
-    });
+
+    const fileName =
+      e.type === "paste" ? `${date}_copyImage.png` : `${date}_${file.name}`;
+    try {
+      const resizedImageUrl = await imageResize(file, 400);
+      setClipImg([...clipImg, resizedImageUrl]);
+    } catch (error) {
+      console.log("Image resize error:", error);
+    }
   };
-  const removeClipImg = (idx) => {
-    let arr = clipImg.concat();
+
+  // Function to remove image from the list
+  const removeClipImg = (idx: number) => {
+    const arr = clipImg.slice();
     arr.splice(idx, 1);
     setClipImg(arr);
-    document.querySelector("#img_file").value = "";
+    const inputElement = document.querySelector<HTMLInputElement>("#img_file");
+    if (inputElement) {
+      inputElement.value = "";
+    }
   };
 
   return (
@@ -166,8 +216,8 @@ const ImageUpload = ({ clipImg, setClipImg }) => {
       </Flex>
       {clipImg &&
         clipImg.map((el, idx) => (
-          <div className="preview-img-box" key={`${el}`}>
-            <img src={el} />
+          <div className="preview-img-box" key={el}>
+            <img src={el} alt={`uploaded-${idx}`} />
             <div className="file-txt">
               <span>{el}</span>
               <button type="button" onClick={() => removeClipImg(idx)}>

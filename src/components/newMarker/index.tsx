@@ -1,16 +1,29 @@
+import React, { Dispatch, SetStateAction } from "react";
 import { divIcon } from "leaflet";
 import { useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { IoMdLocate } from "react-icons/io";
 import { Marker, Popup, useMap, useMapEvent } from "react-leaflet";
-import { colors } from "../style/colors";
-import CreateModal from "./modal/CreateModal";
+import { colors } from "../../style/colors";
+import CreateModal from "../modal/CreateModal";
 import { useDisclosure } from "@chakra-ui/react";
 import short from "short-uuid";
-import { get, ref } from "firebase/database";
-import { db } from "../firebase";
 
-const NewMarker = ({ setSaveMode, setRender }) => {
+interface NewMarkerProps {
+  setRender: Dispatch<SetStateAction<number>>;
+  setSaveMode: Dispatch<SetStateAction<boolean>>;
+}
+
+export type Marker = {
+  id: string;
+  latitude: number;
+  longitude: number;
+  uid?: string;
+  lat?: number;
+  lng?: number;
+};
+
+const NewMarker = ({ setSaveMode, setRender }: NewMarkerProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure(); //위치저장 모달
 
   const iconMarkup = renderToStaticMarkup(
@@ -33,7 +46,7 @@ const NewMarker = ({ setSaveMode, setRender }) => {
     html: iconMarkup,
   });
 
-  const [newMarker, setNewMarker] = useState();
+  const [newMarker, setNewMarker] = useState<Marker | undefined>();
   useMapEvent("click", (e) => {
     const marker = {
       id: short.generate(),
@@ -57,7 +70,6 @@ const NewMarker = ({ setSaveMode, setRender }) => {
             setRender={setRender}
             setSaveMode={setSaveMode}
             isOpen={isOpen}
-            data={newMarker}
             onClose={onClose}
             newMarker={newMarker}
             setNewMarker={setNewMarker}

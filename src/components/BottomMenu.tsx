@@ -14,14 +14,23 @@ import { MapStyled } from "../style/componentStyle";
 import { format, subYears } from "date-fns";
 import { useStore } from "../store/store";
 import ModifyProfileModal from "./modal/ModifyProfileModal";
+import React from "react";
 
-function BottomMenu({
+interface BottomMenuProps {
+  handleCurrentLocation: () => void; // 현재 위치를 처리하는 함수
+  onSaveMode: () => void; // 저장 모드를 전환하는 함수
+  saveMode: boolean; // 저장 모드 상태
+  setSaveMode: React.Dispatch<React.SetStateAction<boolean>>; // 저장 모드 상태를 변경하는 함수
+  setRender: React.Dispatch<React.SetStateAction<number>>; // 렌더링 상태를 변경하는 함수
+}
+
+const BottomMenu: React.FC<BottomMenuProps> = ({
   handleCurrentLocation,
   onSaveMode,
   saveMode,
   setSaveMode,
   setRender,
-}) {
+}) => {
   const {
     isOpen: isProfileOpen,
     onOpen: onOpenProfile,
@@ -36,7 +45,7 @@ function BottomMenu({
   minDate = minDate.replace("%", "T");
   maxDate = maxDate.replace("%", "T");
 
-  const onDateSet = (e) => {
+  const onDateSet = (e: any) => {
     setDate(e.target.value);
     setRender((pre) => pre + 1);
   };
@@ -91,12 +100,11 @@ function BottomMenu({
         </div>
       </MapStyled>
       <ModifyProfileModal
-        userInfo={userInfo}
         isProfileOpen={isProfileOpen}
         onCloseProfile={onCloseProfile}
       />
     </>
   );
-}
+};
 
 export default BottomMenu;

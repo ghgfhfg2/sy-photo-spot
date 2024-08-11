@@ -15,18 +15,27 @@ import {
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { equalCheck } from "../../utils/commonFunc";
+import { useStore } from "../../store/store";
 
-function ModifyProfileModal({ userInfo, isProfileOpen, onCloseProfile }) {
+interface ModifyProfileModalProps {
+  isProfileOpen: boolean;
+  onCloseProfile: () => void;
+}
+
+const ModifyProfileModal: React.FC<ModifyProfileModalProps> = ({
+  isProfileOpen,
+  onCloseProfile,
+}) => {
   const toast = useToast();
-
+  const userInfo = useStore((state) => state.userInfo);
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const onSubmit = async (values) => {
-    const check = equalCheck(values, userInfo); //변경사항 체크
+  const onSubmit = async (values: any) => {
+    const check = equalCheck(values, userInfo as any); //변경사항 체크
     if (check) {
       onCloseProfile();
       return;
@@ -55,11 +64,11 @@ function ModifyProfileModal({ userInfo, isProfileOpen, onCloseProfile }) {
                 {...register("nick", {
                   required: "닉네임은 필수항목 입니다.",
                 })}
-                defaultValue={userInfo.nick}
+                defaultValue={userInfo?.nick}
                 placeholder="닉네임"
               />
               <FormErrorMessage>
-                {errors.title && errors.title.message}
+                {errors.nick && (errors.nick.message as string)}
               </FormErrorMessage>
             </FormControl>
 
@@ -82,6 +91,6 @@ function ModifyProfileModal({ userInfo, isProfileOpen, onCloseProfile }) {
       </ModalContent>
     </Modal>
   );
-}
+};
 
 export default ModifyProfileModal;

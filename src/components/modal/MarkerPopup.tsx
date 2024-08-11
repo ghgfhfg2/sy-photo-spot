@@ -8,7 +8,6 @@ import {
 } from "@chakra-ui/react";
 import styled from "styled-components";
 import { useStore } from "../../store/store";
-import { RiUserLine } from "react-icons/ri";
 import { MdOutlineDateRange } from "react-icons/md";
 import { IoMdLink } from "react-icons/io";
 import { colors } from "../../style/colors";
@@ -62,11 +61,11 @@ const TopInfo = styled.div`
   }
 `;
 
-function MarkerPopup({ isOpen, onClose, data, setRender }) {
+function MarkerPopup({ isOpen, onClose, data, setRender }: any) {
   const userInfo = useStore((state) => state.userInfo);
-  const setMarker = useStore((state) => state.setMarker);
+  const clearMarker = useStore((state) => state.clearMarker);
   const onCloseModal = () => {
-    setMarker({});
+    clearMarker();
     onClose();
   };
 
@@ -82,7 +81,7 @@ function MarkerPopup({ isOpen, onClose, data, setRender }) {
               <PopupImage src={data.image_url} alt="Image" />
               <TopInfo>
                 <div className="user">{data.user_nick}</div>
-                {userInfo.uid === data.user_uid && (
+                {userInfo?.uid === data.user_uid && (
                   <ModalMenu
                     setRender={setRender}
                     data={data}

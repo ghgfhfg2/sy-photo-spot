@@ -1,12 +1,12 @@
+import React from "react";
 import { useEffect, useState } from "react";
-import { Marker, Popup } from "react-leaflet";
-import { useMap } from "react-leaflet/hooks";
+import { useMap } from "react-leaflet";
 
 const LocationMarker = () => {
   const [currentPosition, setCurrentPosition] = useState(null);
   const map = useMap();
 
-  const handleLocationFound = (e) => {
+  const handleLocationFound = (e: any) => {
     setCurrentPosition(e.latlng);
     map.setView(e.latlng, 16); // 고정 줌 레벨 설정
   };
@@ -15,11 +15,6 @@ const LocationMarker = () => {
     map.locate().on("locationfound", handleLocationFound);
   }, [map]);
 
-  return currentPosition === null ? null : (
-    <></>
-    // <Marker position={currentPosition}>
-    //   <Popup>현재 예상 위치</Popup>
-    // </Marker>
-  );
+  return currentPosition === null ? null : <></>;
 };
 export default LocationMarker;

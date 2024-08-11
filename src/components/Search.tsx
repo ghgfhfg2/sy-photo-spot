@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import { Button, Flex, Input, useToast } from "@chakra-ui/react";
 import { useQuery } from "react-query";
+import React from "react";
 
 export const Search = () => {
   const [query, setQuery] = useState("");
@@ -42,7 +43,7 @@ export const Search = () => {
     refetch();
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: any) => {
     if (e.key === "Enter") {
       refetch();
     }

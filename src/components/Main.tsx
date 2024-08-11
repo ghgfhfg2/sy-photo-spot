@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { auth, db } from "../firebase";
 import { onValue, ref } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../store/store";
-import Map from "./Map";
+import Map from "./map";
+import { AuthUser } from "../type";
 
 function Main() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ function Main() {
   const setUser = useStore((state) => state.setUser);
   const clearUser = useStore((state) => state.clearUser);
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged((user: AuthUser | null) => {
       if (user) {
         const userRef = ref(db, `users/${user.uid}`);
         onValue(userRef, (data) => {
@@ -30,7 +31,7 @@ function Main() {
     });
   }, []);
 
-  return <Map userInfo={userInfo} />;
+  return userInfo && <Map />;
 }
 
 export default Main;

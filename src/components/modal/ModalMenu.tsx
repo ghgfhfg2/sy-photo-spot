@@ -7,7 +7,6 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import React from "react";
 import { GoKebabHorizontal } from "react-icons/go";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { api } from "../../api";
@@ -17,12 +16,12 @@ import { storage } from "../../firebase";
 import { LuPencil } from "react-icons/lu";
 import UpdateModal from "./UpdateModal";
 
-export default function ModalMenu({ data, onCloseModal, setRender }) {
+export default function ModalMenu({ data, onCloseModal, setRender }: any) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const toast = useToast();
 
-  const deleteFileByUrl = async (url) => {
+  const deleteFileByUrl = async (url: string) => {
     const filePath = extractFilePathFromUrl(url); //url받아서 path로 변경
     const fileRef = sRef(storage, filePath);
     try {
@@ -32,7 +31,7 @@ export default function ModalMenu({ data, onCloseModal, setRender }) {
     }
   }; //이미지 삭제
 
-  const onRemove = (data) => {
+  const onRemove = (data: any) => {
     const agree = confirm("삭제하시겠습니까?");
     if (!agree) {
       return;
@@ -45,7 +44,7 @@ export default function ModalMenu({ data, onCloseModal, setRender }) {
       })
       .then((res) => {
         onCloseModal();
-        setRender((pre) => pre + 1);
+        setRender((pre: number) => pre + 1);
         toast({
           description: "삭제 되었습니다.",
           status: "success",

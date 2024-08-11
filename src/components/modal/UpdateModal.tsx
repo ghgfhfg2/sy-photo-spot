@@ -17,7 +17,7 @@ import { useState } from "react";
 import { useStore } from "../../store/store";
 import { api } from "../../api";
 
-function UpdateModal({ data, isOpen, onClose }) {
+function UpdateModal({ data, isOpen, onClose }: any) {
   const updateMarkerList = useStore((state) => state.updateMarkerList);
   const markerList = useStore((state) => state.markerList);
   const setMarker = useStore((state) => state.setMarker);
@@ -37,7 +37,7 @@ function UpdateModal({ data, isOpen, onClose }) {
 
   const [prevData, setPrevData] = useState(data);
 
-  const onSubmit = async (values) => {
+  const onSubmit = async (values: any) => {
     values.uid = data.uid;
     values.date = format(new Date(values.date), "yyyy-MM-dd HH:mm:ss");
     const check = equalCheck(values, prevData); //변경사항 체크
@@ -82,7 +82,7 @@ function UpdateModal({ data, isOpen, onClose }) {
                 placeholder="제목"
               />
               <FormErrorMessage>
-                {errors.title && errors.title.message}
+                {errors.title && (errors.title.message as string)}
               </FormErrorMessage>
             </FormControl>
             <FormControl mt={4}>

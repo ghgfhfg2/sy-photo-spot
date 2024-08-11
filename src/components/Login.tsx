@@ -29,7 +29,7 @@ const BackgroundBox = styled(Box)`
   background-size: 400% 400%;
   z-index: 0;
 `;
-const BackgroundImage = styled(Box)`
+const BackgroundImage = styled(Box)<{ image: string }>`
   width: 90vw;
   height: 0;
   padding-bottom: 75%;
@@ -48,7 +48,7 @@ function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (userInfo.uid) {
+    if (userInfo?.uid) {
       navigate("/");
     }
   }, [userInfo]);
