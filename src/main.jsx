@@ -4,6 +4,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import App from "./App";
 import GlobalStyle from "./style/GlobalStyle";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
 import theme from "./style/theme";
 const queryClient = new QueryClient();
 
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <GlobalStyle />
       <QueryClientProvider client={queryClient}>
         <App />
+        <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
       </QueryClientProvider>
     </ChakraProvider>
   </React.StrictMode>

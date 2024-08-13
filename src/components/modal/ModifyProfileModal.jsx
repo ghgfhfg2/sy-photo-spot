@@ -7,17 +7,19 @@ import {
   Input,
   Modal,
   ModalBody,
-  ModalCloseButton,
   ModalContent,
-  ModalHeader,
   ModalOverlay,
   useToast,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { equalCheck } from "../../utils/commonFunc";
+import { useEffect } from "react";
+import { api } from "../../api";
 
 function ModifyProfileModal({ userInfo, isProfileOpen, onCloseProfile }) {
   const toast = useToast();
+
+  useEffect(() => {}, [userInfo]);
 
   const {
     handleSubmit,

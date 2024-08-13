@@ -14,6 +14,7 @@ import { MapStyled } from "../style/componentStyle";
 import { format, subYears } from "date-fns";
 import { useStore } from "../store/store";
 import ModifyProfileModal from "./modal/ModifyProfileModal";
+import MyphotoModal from "./modal/MyPhotoModal";
 
 function BottomMenu({
   handleCurrentLocation,
@@ -26,6 +27,11 @@ function BottomMenu({
     isOpen: isProfileOpen,
     onOpen: onOpenProfile,
     onClose: onCloseProfile,
+  } = useDisclosure();
+  const {
+    isOpen: isMyPhotoOpen,
+    onOpen: onOpenMyPhoto,
+    onClose: onCloseMyPhoto,
   } = useDisclosure();
   const setDate = useStore((state) => state.setDate);
   const userInfo = useStore((state) => state.userInfo);
@@ -45,7 +51,13 @@ function BottomMenu({
     <>
       <MapStyled>
         <div className="btn-container">
-          <Menu>
+          <Avatar
+            onClick={onOpenMyPhoto}
+            name="Dan Abrahmov"
+            src="https://bit.ly/dan-abramov"
+            mr={2}
+          />
+          {/* <Menu>
             <MenuButton
               as={Avatar}
               boxShadow="lg"
@@ -56,9 +68,10 @@ function BottomMenu({
               bg="purple.500"
             ></MenuButton>
             <MenuList>
+              <MenuItem onClick={onOpenMyPhoto}>내 사진 리스트</MenuItem>
               <MenuItem onClick={onOpenProfile}>프로필 수정</MenuItem>
             </MenuList>
-          </Menu>
+          </Menu> */}
           <Button boxShadow="lg" pr={0} pl={0} mr={2}>
             <Input
               fontSize="sm"
@@ -94,6 +107,11 @@ function BottomMenu({
         userInfo={userInfo}
         isProfileOpen={isProfileOpen}
         onCloseProfile={onCloseProfile}
+      />
+      <MyphotoModal
+        userInfo={userInfo}
+        isMyPhotoOpen={isMyPhotoOpen}
+        onCloseMyPhoto={onCloseMyPhoto}
       />
     </>
   );

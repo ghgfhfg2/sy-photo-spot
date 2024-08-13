@@ -13,6 +13,7 @@
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@tanstack/react-query-devtools": "^5.51.23",
     "axios": "^1.7.2",
     "browser-image-compression": "^2.0.2",
     "date-fns": "^3.6.0",
