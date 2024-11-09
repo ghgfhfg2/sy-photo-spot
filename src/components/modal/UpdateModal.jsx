@@ -14,13 +14,11 @@ import { format, subYears } from "date-fns";
 import { useForm } from "react-hook-form";
 import { equalCheck } from "../../utils/commonFunc";
 import { useState } from "react";
-import { useStore } from "../../store/store";
 import { api } from "../../api";
+import { useMarkerStore } from "../../store/useMarkerStore";
 
 function UpdateModal({ data, isOpen, onClose }) {
-  const updateMarkerList = useStore((state) => state.updateMarkerList);
-  const markerList = useStore((state) => state.markerList);
-  const setMarker = useStore((state) => state.setMarker);
+  const { updateMarkerList, markerList, setMarker } = useMarkerStore();
 
   const toast = useToast();
   //과거 2년전까지 날짜 등록 가능

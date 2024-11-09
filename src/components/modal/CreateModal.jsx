@@ -25,7 +25,7 @@ import { getDownloadURL, ref as sRef, uploadBytes } from "firebase/storage";
 import { storage } from "../../firebase";
 import { api } from "../../api";
 import { useMutation, useQueryClient } from "react-query";
-import { useStore } from "../../store/store";
+import { useUserStore } from "../../store/useUserStore";
 
 function CreateModal({
   isOpen,
@@ -35,7 +35,7 @@ function CreateModal({
   setSaveMode,
   setRender,
 }) {
-  const userInfo = useStore((state) => state.userInfo);
+  const userInfo = useUserStore((state) => state.userInfo);
   const toast = useToast();
   const {
     handleSubmit,
@@ -132,7 +132,7 @@ function CreateModal({
     <Modal isOpen={isOpen} onClose={onCloseModal} size="xl">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>사진 등록 요청하기</ModalHeader>
+        <ModalHeader>사진 등록하기</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
           <form onSubmit={handleSubmit(onSubmit)}>

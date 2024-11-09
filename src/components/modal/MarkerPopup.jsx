@@ -7,12 +7,13 @@ import {
   ModalOverlay,
 } from "@chakra-ui/react";
 import styled from "styled-components";
-import { useStore } from "../../store/store";
 import { RiUserLine } from "react-icons/ri";
 import { MdOutlineDateRange } from "react-icons/md";
 import { IoMdLink } from "react-icons/io";
 import { colors } from "../../style/colors";
 import ModalMenu from "./ModalMenu";
+import { useUserStore } from "../../store/useUserStore";
+import { useMarkerStore } from "../../store/useMarkerStore";
 
 const PopupContainer = styled.div`
   .zoom {
@@ -56,6 +57,7 @@ const TopInfo = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0.5rem;
   .user {
     font-size: 1rem;
     font-weight: 600;
@@ -63,8 +65,8 @@ const TopInfo = styled.div`
 `;
 
 function MarkerPopup({ isOpen, onClose, data, setRender }) {
-  const userInfo = useStore((state) => state.userInfo);
-  const setMarker = useStore((state) => state.setMarker);
+  const userInfo = useUserStore((state) => state.userInfo);
+  const setMarker = useMarkerStore((state) => state.setMarker);
   const onCloseModal = () => {
     setMarker({});
     onClose();

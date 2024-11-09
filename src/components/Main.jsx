@@ -2,14 +2,13 @@ import { useEffect } from "react";
 import { auth, db } from "../firebase";
 import { onValue, ref } from "firebase/database";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "../store/store";
 import Map from "./Map";
+import { useUserStore } from "../store/useUserStore";
 
 function Main() {
   const navigate = useNavigate();
-  const userInfo = useStore((state) => state.userInfo);
-  const setUser = useStore((state) => state.setUser);
-  const clearUser = useStore((state) => state.clearUser);
+  const { userInfo, setUser, clearUser } = useUserStore();
+
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       if (user) {

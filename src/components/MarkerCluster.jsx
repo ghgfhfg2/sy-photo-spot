@@ -6,14 +6,12 @@ import "leaflet.markercluster/dist/leaflet.markercluster-src";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import { api } from "../api";
-import { useStore } from "../store/store";
+import { useMarkerStore } from "../store/useMarkerStore";
 
 const MarkerCluster = ({ markers, onOpen }) => {
   const map = useMap();
 
-  const setMarker = useStore((state) => state.setMarker);
-  const markerList = useStore((state) => state.markerList);
-  const putMarkerList = useStore((state) => state.putMarkerList);
+  const { setMarker, markerList, putMarkerList } = useMarkerStore();
 
   const getMarkerData = async (id) => {
     const { data } = await api.post(`/photo.php`, {

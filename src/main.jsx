@@ -6,6 +6,7 @@ import GlobalStyle from "./style/GlobalStyle";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import theme from "./style/theme";
+import "./tailwind.css";
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(

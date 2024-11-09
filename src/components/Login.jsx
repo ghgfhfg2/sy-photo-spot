@@ -17,7 +17,7 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, db, provider } from "../firebase";
 import { ref, set } from "firebase/database";
 import { createRandomNick } from "../utils/randomNick";
-import { useStore } from "../store/store";
+import { useUserStore } from "../store/useUserStore";
 
 const BackgroundBox = styled(Box)`
   position: absolute;
@@ -44,7 +44,7 @@ const BackgroundImage = styled(Box)`
 `;
 
 function Login() {
-  const userInfo = useStore((state) => state.userInfo);
+  const userInfo = useUserStore();
   const navigate = useNavigate();
 
   useEffect(() => {

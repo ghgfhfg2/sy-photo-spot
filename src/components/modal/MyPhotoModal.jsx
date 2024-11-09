@@ -1,9 +1,18 @@
-import { Modal, ModalBody, ModalContent, ModalOverlay } from "@chakra-ui/react";
+import {
+  Box,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalOverlay,
+} from "@chakra-ui/react";
 
 import { api } from "../../api";
 import { useQuery } from "react-query";
 import styled from "styled-components";
 import { useMap } from "react-leaflet";
+import { useDateStore } from "../../store/useDateStore";
+import { format } from "date-fns";
+import ProfileBox from "../profileBox";
 
 const PhotoListStyle = styled.ul`
   padding: 1rem 0;
@@ -21,6 +30,7 @@ const PhotoListStyle = styled.ul`
 `;
 
 function MyphotoModal({ userInfo, isMyPhotoOpen, onCloseMyPhoto }) {
+  const setDate = useDateStore((state) => state.setDate);
   const map = useMap();
   const getPhotoList = async () => {
     const photos = await api
@@ -40,8 +50,10 @@ function MyphotoModal({ userInfo, isMyPhotoOpen, onCloseMyPhoto }) {
   const { data, error, isLoading } = useQuery(["photo"], getPhotoList, {
     enabled: !!userInfo?.uid,
   });
-  const onCurrentPosition = (lat, lng) => {
-    map.setView([lat, lng], 18);
+  const onCurrentPosition = (data) => {
+    map.setView([data.lat, data.lng], 18);
+    setDate(format(new Date(data.date), "yyyy-MM"));
+    onCloseMyPhoto();
   };
 
   return (
@@ -52,16 +64,16 @@ function MyphotoModal({ userInfo, isMyPhotoOpen, onCloseMyPhoto }) {
           {isLoading ? (
             <>Loading...</>
           ) : (
-            <PhotoListStyle>
-              {data?.list?.map((el) => (
-                <li
-                  key={el.uid}
-                  onClick={() => onCurrentPosition(el.lat, el.lng)}
-                >
-                  <img src={el.image_url} />
-                </li>
-              ))}
-            </PhotoListStyle>
+            <Box p={2} pt={5}>
+              <ProfileBox />
+              <PhotoListStyle>
+                {data?.list?.map((el) => (
+                  <li key={el.uid} onClick={() => onCurrentPosition(el)}>
+                    <img src={el.image_url} />
+                  </li>
+                ))}
+              </PhotoListStyle>
+            </Box>
           )}
         </ModalBody>
       </ModalContent>

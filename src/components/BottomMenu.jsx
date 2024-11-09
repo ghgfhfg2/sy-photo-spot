@@ -1,20 +1,10 @@
-import {
-  Avatar,
-  Button,
-  Image,
-  Input,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  useDisclosure,
-  useToast,
-} from "@chakra-ui/react";
+import { Avatar, Button, Input, useDisclosure } from "@chakra-ui/react";
 import { MapStyled } from "../style/componentStyle";
 import { format, subYears } from "date-fns";
-import { useStore } from "../store/store";
-import ModifyProfileModal from "./modal/ModifyProfileModal";
 import MyphotoModal from "./modal/MyPhotoModal";
+import { useUserStore } from "../store/useUserStore";
+import { useDateStore } from "../store/useDateStore";
+import { useEffect } from "react";
 
 function BottomMenu({
   handleCurrentLocation,
@@ -24,21 +14,16 @@ function BottomMenu({
   setRender,
 }) {
   const {
-    isOpen: isProfileOpen,
-    onOpen: onOpenProfile,
-    onClose: onCloseProfile,
-  } = useDisclosure();
-  const {
     isOpen: isMyPhotoOpen,
     onOpen: onOpenMyPhoto,
     onClose: onCloseMyPhoto,
   } = useDisclosure();
-  const setDate = useStore((state) => state.setDate);
-  const userInfo = useStore((state) => state.userInfo);
+  const { userInfo } = useUserStore();
+  const { date, setDate } = useDateStore();
 
   //과거 2년전까지 조회가능
-  let minDate = format(subYears(new Date(), 2), "yyy-MM");
-  let maxDate = format(new Date(), "yyy-MM");
+  let minDate = format(subYears(new Date(), 2), "yyyy-MM");
+  let maxDate = format(new Date(), "yyyy-MM");
   minDate = minDate.replace("%", "T");
   maxDate = maxDate.replace("%", "T");
 
@@ -46,6 +31,10 @@ function BottomMenu({
     setDate(e.target.value);
     setRender((pre) => pre + 1);
   };
+
+  useEffect(() => {
+    setRender((pre) => pre + 1);
+  }, [date]);
 
   return (
     <>
@@ -57,21 +46,7 @@ function BottomMenu({
             src="https://bit.ly/dan-abramov"
             mr={2}
           />
-          {/* <Menu>
-            <MenuButton
-              as={Avatar}
-              boxShadow="lg"
-              mr={2}
-              src={
-                userInfo && userInfo.profileImage ? userInfo.profileImage : ""
-              }
-              bg="purple.500"
-            ></MenuButton>
-            <MenuList>
-              <MenuItem onClick={onOpenMyPhoto}>내 사진 리스트</MenuItem>
-              <MenuItem onClick={onOpenProfile}>프로필 수정</MenuItem>
-            </MenuList>
-          </Menu> */}
+
           <Button boxShadow="lg" pr={0} pl={0} mr={2}>
             <Input
               fontSize="sm"
@@ -103,11 +78,7 @@ function BottomMenu({
           </Button>
         </div>
       </MapStyled>
-      <ModifyProfileModal
-        userInfo={userInfo}
-        isProfileOpen={isProfileOpen}
-        onCloseProfile={onCloseProfile}
-      />
+
       <MyphotoModal
         userInfo={userInfo}
         isMyPhotoOpen={isMyPhotoOpen}

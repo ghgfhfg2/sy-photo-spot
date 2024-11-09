@@ -9,13 +9,14 @@ import { api } from "../api";
 import MarkerCluster from "./MarkerCluster";
 import MarkerPopup from "./modal/MarkerPopup";
 import { Box, useDisclosure } from "@chakra-ui/react";
-import { useStore } from "../store/store";
 import { addMonths, format } from "date-fns";
 import { Search } from "./Search";
 
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { useMarkerStore } from "../store/useMarkerStore";
+import { useDateStore } from "../store/useDateStore";
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -29,8 +30,9 @@ function Map({ userInfo }) {
   const mapRef = useRef();
   const [saveMode, setSaveMode] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const marker = useStore((state) => state.marker);
-  const date = useStore((state) => state.date);
+
+  const marker = useMarkerStore((state) => state.marker);
+  const date = useDateStore((state) => state.date);
 
   const handleCurrentLocation = () => {
     const map = mapRef.current;
