@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-const pages = import.meta.glob("./pages/**/*.jsx", { eager: true });
+const pages = import.meta.glob("./pages/**/*.tsx", { eager: true });
 const routes = [];
 for (const path of Object.keys(pages)) {
-  const fileName = path.match(/\.\/pages\/(.*)\.jsx$/)?.[1];
+  const fileName = path.match(/\.\/pages\/(.*)\.tsx$/)?.[1];
   if (!fileName) {
     continue;
   }

@@ -7,7 +7,6 @@ import {
   ModalOverlay,
 } from "@chakra-ui/react";
 import styled from "styled-components";
-import { RiUserLine } from "react-icons/ri";
 import { MdOutlineDateRange } from "react-icons/md";
 import { IoMdLink } from "react-icons/io";
 import { colors } from "../../style/colors";
@@ -25,6 +24,8 @@ const PopupImage = styled.img`
   width: 100%;
   max-width: 400px;
   height: auto;
+  max-height: calc(100vh - 20rem);
+  object-fit: contain;
 `;
 
 const InfoList = styled.div`
@@ -57,7 +58,7 @@ const TopInfo = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-top: 1rem;
   .user {
     font-size: 1rem;
     font-weight: 600;
@@ -81,6 +82,7 @@ function MarkerPopup({ isOpen, onClose, data, setRender }) {
           <ModalCloseButton />
           <ModalBody pb={6}>
             <PopupContainer>
+              <div className="img-box"></div>
               <PopupImage src={data.image_url} alt="Image" />
               <TopInfo>
                 <div className="user">{data.user_nick}</div>

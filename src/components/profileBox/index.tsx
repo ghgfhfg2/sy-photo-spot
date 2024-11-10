@@ -1,4 +1,3 @@
-import React from "react";
 import { ProfileBoxStyle } from "./style";
 import {
   Avatar,
@@ -21,14 +20,12 @@ const ProfileBox = () => {
     onClose: onCloseProfile,
   } = useDisclosure();
   const userInfo = useUserStore((state) => state.userInfo);
+  if (!userInfo) return null;
   return (
     <>
       <ProfileBoxStyle>
         <Flex align="center" gap={3}>
-          <Avatar
-            className="profile-image"
-            src={userInfo && userInfo.profileImage ? userInfo.profileImage : ""}
-          />
+          <Avatar className="profile-image" src={userInfo.profileImage || ""} />
           <span className="nick">{userInfo.nick}</span>
         </Flex>
         <Menu>

@@ -4,11 +4,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { IoMdLocate } from "react-icons/io";
 import { Marker, Popup, useMap, useMapEvent } from "react-leaflet";
 import { colors } from "../style/colors";
-import CreateModal from "./modal/CreateModal";
 import { useDisclosure } from "@chakra-ui/react";
 import short from "short-uuid";
-import { get, ref } from "firebase/database";
-import { db } from "../firebase";
+import CreateModal from "./modal/createModal";
 
 const NewMarker = ({ setSaveMode, setRender }) => {
   const { isOpen, onOpen, onClose } = useDisclosure(); //위치저장 모달

@@ -1,4 +1,5 @@
 import { createGlobalStyle } from "styled-components";
+import { colors } from "./colors";
 
 const GlobalStyle = createGlobalStyle`
 
@@ -83,6 +84,23 @@ table {
 .leaflet-tile {
   image-rendering: crisp-edges; /* 크리스프한 엣지를 사용하여 렌더링 품질 개선 */
   image-rendering: pixelated;   /* 픽셀화된 이미지를 사용하여 렌더링 품질 개선 */
+}
+
+.chakra-checkbox .chakra-checkbox__control {
+  border:1px solid  ${colors.BLACK_600};
+}
+
+//기본 마커 대체 썸네일
+.thumbnail-marker{
+  border-radius: .25rem;
+  overflow: hidden;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  object-fit: cover;
+  object-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 `;

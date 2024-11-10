@@ -8,7 +8,7 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import { api } from "../api";
 import { useMarkerStore } from "../store/useMarkerStore";
 
-const MarkerCluster = ({ markers, onOpen }) => {
+const MarkerCluster = ({ markers, onOpen, createIcon }) => {
   const map = useMap();
 
   const { setMarker, markerList, putMarkerList } = useMarkerStore();
@@ -25,7 +25,9 @@ const MarkerCluster = ({ markers, onOpen }) => {
     const markerClusterGroup = L.markerClusterGroup();
 
     markers.forEach((markerEl) => {
-      const leafletMarker = L.marker([markerEl.lat, markerEl.lng]);
+      const leafletMarker = L.marker([markerEl.lat, markerEl.lng], {
+        icon: createIcon(markerEl.thumbnail),
+      });
       leafletMarker.on("click", async () => {
         try {
           const find = markerList.find((el) => el.uid === markerEl.id); //state에 있는지 확인

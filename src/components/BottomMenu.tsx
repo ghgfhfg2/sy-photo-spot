@@ -27,8 +27,15 @@ function BottomMenu({
   minDate = minDate.replace("%", "T");
   maxDate = maxDate.replace("%", "T");
 
+  // 날짜 선택 셀렉트
   const onDateSet = (e) => {
     setDate(e.target.value);
+    setRender((pre) => pre + 1);
+  };
+
+  // 팝업에서 날짜 선택시
+  const onPropsDateSet = (date: string) => {
+    setDate(date);
     setRender((pre) => pre + 1);
   };
 
@@ -43,10 +50,9 @@ function BottomMenu({
           <Avatar
             onClick={onOpenMyPhoto}
             name="Dan Abrahmov"
-            src="https://bit.ly/dan-abramov"
+            src={userInfo.profileImage || ""}
             mr={2}
           />
-
           <Button boxShadow="lg" pr={0} pl={0} mr={2}>
             <Input
               fontSize="sm"
@@ -56,7 +62,7 @@ function BottomMenu({
               max={maxDate}
               onClick={() => setSaveMode(false)}
               onChange={onDateSet}
-              defaultValue={maxDate}
+              value={date || maxDate}
             />
           </Button>
           <Button
@@ -80,6 +86,7 @@ function BottomMenu({
       </MapStyled>
 
       <MyphotoModal
+        onDateSet={onPropsDateSet}
         userInfo={userInfo}
         isMyPhotoOpen={isMyPhotoOpen}
         onCloseMyPhoto={onCloseMyPhoto}

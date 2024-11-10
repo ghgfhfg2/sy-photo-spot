@@ -29,7 +29,7 @@ const PhotoListStyle = styled.ul`
   }
 `;
 
-function MyphotoModal({ userInfo, isMyPhotoOpen, onCloseMyPhoto }) {
+function MyphotoModal({ userInfo, isMyPhotoOpen, onCloseMyPhoto, onDateSet }) {
   const setDate = useDateStore((state) => state.setDate);
   const map = useMap();
   const getPhotoList = async () => {
@@ -52,6 +52,7 @@ function MyphotoModal({ userInfo, isMyPhotoOpen, onCloseMyPhoto }) {
   });
   const onCurrentPosition = (data) => {
     map.setView([data.lat, data.lng], 18);
+    onDateSet(format(new Date(data.date), "yyyy-MM"));
     setDate(format(new Date(data.date), "yyyy-MM"));
     onCloseMyPhoto();
   };

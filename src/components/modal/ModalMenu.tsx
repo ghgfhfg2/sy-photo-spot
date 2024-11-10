@@ -38,6 +38,7 @@ export default function ModalMenu({ data, onCloseModal, setRender }) {
       return;
     }
     deleteFileByUrl(data.image_url);
+    deleteFileByUrl(data.thumbnail_url);
     api
       .post(`photo.php`, {
         a: "removeLocation",

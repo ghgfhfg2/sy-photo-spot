@@ -119,6 +119,17 @@ function Map({ userInfo }) {
   //   setLocationList(locationList);
   // }, [locationList]);
 
+  const createThumbnailIcon = (thumbnailUrl) => {
+    return L.divIcon({
+      html: `
+       <img src=${thumbnailUrl} alt="thumbnail" />
+      `,
+      className: "thumbnail-marker",
+      iconSize: [40, 40],
+      iconAnchor: [25, 25],
+    });
+  };
+
   return (
     <>
       <MapStyled>
@@ -142,15 +153,15 @@ function Map({ userInfo }) {
                 <div className="pointer"></div>
                 <p className="info-txt">저장할 위치를 선택헤 주세요</p>
               </div>
-              <NewMarker setSaveMode={setSaveMode} />
+              <NewMarker setSaveMode={setSaveMode} setRender={setRender} />
             </>
           )}
           {locationList && (
             <>
               <MarkerCluster
-                setRender={setRender}
                 onOpen={onOpen}
                 markers={locationList}
+                createIcon={createThumbnailIcon}
               />
             </>
           )}

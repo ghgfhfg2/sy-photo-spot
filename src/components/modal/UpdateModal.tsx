@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -95,13 +96,13 @@ function UpdateModal({ data, isOpen, onClose }) {
                 defaultValue={data.date}
               />
             </FormControl>
-            <FormControl mt={4}>
-              <Input
-                fontSize="sm"
-                {...register("link")}
-                placeholder="링크주소 (선택사항)"
-                defaultValue={data.link ? data.link : ""}
-              />
+            <FormControl mt={4} display="flex" justifyContent={"flex-end"}>
+              <Checkbox
+                defaultChecked={data.public ? true : false}
+                {...register("public")}
+              >
+                모든 사람에게 공개
+              </Checkbox>
             </FormControl>
             <Flex mt={5}>
               <Button

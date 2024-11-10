@@ -14,7 +14,7 @@ import {
 import { useForm } from "react-hook-form";
 import { equalCheck } from "../../utils/commonFunc";
 import { useEffect, useState } from "react";
-import { db } from "../../firebase";
+import { db, storage } from "../../firebase";
 import { getDownloadURL, ref as sRef, uploadBytes } from "firebase/storage";
 import { ref, update } from "firebase/database";
 import ProfileImageUpload, {
@@ -36,7 +36,10 @@ function ModifyProfileModal({ userInfo, isProfileOpen, onCloseProfile }) {
 
   //이미지 업로드
   const onUpdateImage = async (base64) => {
-    let file = dataURLtoFile(base64, newMarker.id);
+    if (!base64) return null;
+
+    const fileName = `profile_${userInfo.uid}`;
+    let file = dataURLtoFile(base64, fileName);
     const metadata = { contentType: file.type };
     const storageRef = sRef(
       storage,
@@ -55,7 +58,7 @@ function ModifyProfileModal({ userInfo, isProfileOpen, onCloseProfile }) {
 
   const onSubmit = async (values) => {
     const check = equalCheck(values, userInfo); //변경사항 체크
-    if (check) {
+    if (check && clipImg.length === 0) {
       onCloseProfile();
       return;
     } //변경없음

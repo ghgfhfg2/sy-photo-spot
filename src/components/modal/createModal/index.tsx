@@ -1,9 +1,9 @@
 import {
   Button,
+  Checkbox,
   Flex,
   FormControl,
   FormErrorMessage,
-  FormLabel,
   Input,
   Modal,
   ModalBody,
@@ -11,37 +11,60 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Slider,
-  SliderFilledTrack,
-  SliderThumb,
-  SliderTrack,
   useToast,
 } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
-import ImageUpload, { dataURLtoFile } from "../ImageUpload";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { format, subYears } from "date-fns";
 import { getDownloadURL, ref as sRef, uploadBytes } from "firebase/storage";
-import { storage } from "../../firebase";
-import { api } from "../../api";
 import { useMutation, useQueryClient } from "react-query";
-import { useUserStore } from "../../store/useUserStore";
+import { useUserStore } from "../../../store/useUserStore";
+import { api } from "../../../api";
+import ImageUpload, { dataURLtoFile } from "../../ImageUpload";
+import { storage } from "../../../firebase";
+import { onUpdateThumbnail } from "../../../api/uploadImage";
 
-function CreateModal({
+interface CreateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  setNewMarker: (marker: any) => void;
+  newMarker: {
+    id: string;
+    latitude: number;
+    longitude: number;
+  };
+  setSaveMode: (mode: boolean) => void;
+  setRender: React.Dispatch<React.SetStateAction<number>>;
+}
+
+interface FormValues {
+  title: string;
+  date: string;
+  link?: string;
+  a?: string;
+  image_url?: string;
+  user_uid?: string;
+  user_nick?: string;
+  lat?: number;
+  lng?: number;
+  public: boolean;
+}
+
+const CreateModal = ({
   isOpen,
   onClose,
   setNewMarker,
   newMarker,
   setSaveMode,
   setRender,
-}) {
+}: CreateModalProps) => {
   const userInfo = useUserStore((state) => state.userInfo);
   const toast = useToast();
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
-  } = useForm();
+  } = useForm<FormValues>();
 
   const onCloseModal = () => {
     onClose();
@@ -60,12 +83,7 @@ function CreateModal({
   //이미지 업로드
   const onUpdateImage = async (base64) => {
     let file = dataURLtoFile(base64, newMarker.id);
-    const metadata = { contentType: file.type };
-    const storageRef = sRef(
-      storage,
-      `images/${userInfo.uid}/${newMarker.id}`,
-      metadata
-    );
+    const storageRef = sRef(storage, `images/${userInfo.uid}/${newMarker.id}`);
     try {
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
@@ -108,19 +126,26 @@ function CreateModal({
       });
       return;
     }
+    const thumbnailUrl = await onUpdateThumbnail(
+      clipImg[0],
+      newMarker.id,
+      userInfo.uid
+    );
     const imageUrl = await onUpdateImage(clipImg[0]);
     values.a = "setLocation";
     values.link = values.link || "";
     values.image_url = imageUrl;
+    values.thumbnail = thumbnailUrl;
     values.date = format(new Date(values.date), "yyyy-MM-dd HH:mm");
     values.user_uid = userInfo.uid;
     values.user_nick = userInfo.nick;
     values.lat = newMarker.latitude;
     values.lng = newMarker.longitude;
+    values.public = values.public ? 1 : 0;
     addLocaMutation.mutate(values);
     onCloseModal();
     toast({
-      description: "등록 신청이 완료되었습니다.",
+      description: "등록이 완료되었습니다.",
       status: "success",
       duration: 1000,
       isClosable: false,
@@ -162,6 +187,9 @@ function CreateModal({
                 required
               />
             </FormControl>
+            <FormControl mt={4} display="flex" justifyContent={"flex-end"}>
+              <Checkbox {...register("public")}>모든 사람에게 공개</Checkbox>
+            </FormControl>
             <FormControl mt={4} display="none">
               <Input
                 fontSize="sm"
@@ -177,7 +205,7 @@ function CreateModal({
                 type="submit"
                 isLoading={isSubmitting}
               >
-                신청
+                등록
               </Button>
               <Button width="30%" onClick={onCloseModal}>
                 취소
@@ -188,6 +216,6 @@ function CreateModal({
       </ModalContent>
     </Modal>
   );
-}
+};
 
 export default CreateModal;

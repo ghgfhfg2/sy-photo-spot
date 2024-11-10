@@ -1,6 +1,3 @@
-import { useState } from "react";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../firebase";
 import { Flex, Input, Text, useToast } from "@chakra-ui/react";
 import { AiOutlineDelete, AiOutlineUpload } from "react-icons/ai";
 import imageCompression from "browser-image-compression";
